@@ -2,6 +2,7 @@
   <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h2>Articles</h2>
+
       <div>
         <button @click="logout" class="btn btn-danger me-2">Logout</button>
         <button @click="showForm" class="btn btn-primary">
@@ -9,6 +10,19 @@
         </button>
       </div>
     </div>
+    <div class="align-items-end mb-3 d-flex">
+      <input
+        type="text"
+        class="form-control"
+        id="search"
+        v-model="searchQuery"
+        placeholder="Search Articles"
+      />
+      <button @click="searchArticles" class="ms-2 btn btn-primary">
+        Clear
+      </button>
+    </div>
+
     <article-form
       v-if="showArticleForm"
       @close="hideForm"
@@ -16,7 +30,7 @@
       :currentArticle="currentArticle"
     ></article-form>
     <ul class="list-group">
-      <li v-for="article in articles" :key="article.id" class="list-group-item">
+      <li v-for="article in filteredArticles" :key="article.id" class="list-group-item">
         <div class="d-flex justify-content-between align-items-center">
           <div>
             <h3>Title: {{ article.title }}</h3>
@@ -53,6 +67,7 @@ export default {
       articles: [],
       showArticleForm: false,
       currentArticle: null,
+      searchQuery: '',
     };
   },
   methods: {
@@ -88,12 +103,24 @@ export default {
       this.authStore.logout();
       this.$router.push("/");
     },
+    searchArticles(search) {
+    this.searchQuery=''
+    },
   },
   created() {
     this.fetchArticles();
   },
   computed: {
     ...mapStores(useAuthStore),
+    filteredArticles() {
+      return this.articles.filter(
+        (article) =>
+          article.title
+            .toLowerCase()
+            .includes(this.searchQuery.toLowerCase()) ||
+          article.author.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
+    },
   },
 };
 </script>
